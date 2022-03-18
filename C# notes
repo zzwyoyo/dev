@@ -1,0 +1,83 @@
+Map property from two different lists:
+
+1. List<ObjectB> TheListOfObjectsB = TheListOfObjectsA
+    .Select(t => new ObjectB {
+        Prop1 = t.Prop1,
+        Prop2 = t.Prop2,
+    }).ToList();
+
+
+2. Split list into sublist
+var tailList = tailNumberList.Select((x, i) => new { index = i, value = x })
+                .GroupBy(x => x.index / 70)
+                .Select(x => x.Select(v => v.value).ToList())
+                .ToList();
+
+
+DateTime:
+1. get current day: DateTime.Now.ToString("ddd").ToUpper();
+
+
+
+
+Controller:
+ 
+
+
+
+public class DependencyInjection
+    {
+        public static IConfiguration Configuration { get; set; }
+        private static IServiceProvider _provider { get; set; }
+        public static IServiceProvider Provider {
+            get {
+                if (_provider == null) {
+                    Start();
+                }
+                return _provider;
+            }
+            private set { _provider = value; }
+
+        }
+
+        private static void Start()
+        {
+            Configuration = BuildConfiguration();
+            Provider = BuildServiceProvider();
+        }
+
+     
+        private static IConfiguration BuildConfiguration() {
+            var contentRootPath = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            return new ConfigurationBuilder()
+               .SetBasePath(contentRootPath)
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .Build();
+        }
+
+        private static IServiceProvider BuildServiceProvider()
+        {
+            IServiceCollection services = new ServiceCollection();
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddPotableWaterSamplingService();
+            return services.BuildServiceProvider();
+        }
+    }
+
+DI:
+At runtime the DI framework will create the required instance
+1. Inject IServiceProvider:
+Imagine a case where you need to inject many DI services into a controller. Obviously your controller needs to have those many parameters. Moreover in some cases you may not know in advance as to which DI service you are going to need at runtime. In such cases you can inject IServiceProvider into the controller. IServiceProvider allows you to access any of the registered DI services at runtime.
+
+IserviceCollection:
+IServiceCollection services = new ServiceCollection();
+Services.BuidServiceProvider();
+Nugget package: Microsoft.Extensions.DependencyInjection
+
+ConfigurationBuilder:
+return new ConfigurationBuilder()
+               .SetBasePath(contentRootPath)
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .Build();
+Nugget Package: Microsoft.Extensions.Configuration.Json
